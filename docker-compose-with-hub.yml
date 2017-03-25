@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  jenkins:
+    image: jenkins:alpine
+    ports:
+    - ${JENKINS_REMOTE_API_PORT}:50000
+    - ${JENKINS_HTTP_PORT}:8080
+    volumes: 
+    - ${JENKINS_HOME}:/var/jenkins_home
+    networks: 
+      default:
+      hub_net:
+    restart: "unless-stopped"
+
+networks: 
+  hub_net:
+    external: true
