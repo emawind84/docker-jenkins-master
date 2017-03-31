@@ -3,6 +3,9 @@ version: "2"
 services:
   jenkins:
     image: jenkins:alpine
+    extends:
+      file: common-service.yml
+      service: logging
     ports:
     - ${JENKINS_REMOTE_API_PORT}:50000
     - ${JENKINS_HTTP_PORT}:8080
