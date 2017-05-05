@@ -1,6 +1,7 @@
 version: "2"
 
 services:
+  
   jenkins:
     image: ${REGISTRY_URL}/jenkins:0.1-svntunnel
     extends:
@@ -8,11 +9,19 @@ services:
       service: logging
     ports:
     - ${JENKINS_REMOTE_API_PORT}:50000
-    - ${JENKINS_HTTP_PORT}:8080
     volumes: 
     - ${JENKINS_HOME}:/var/jenkins_home
     environment:
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
     - AWS_S3_PROXY_SSH_KEY
+    networks: 
+      default:
+      hub_net:
+        aliases:
+        - builder
     restart: "unless-stopped"
+
+networks: 
+  hub_net:
+    external: true
