@@ -1,8 +1,12 @@
 version: "2"
 
 services:
+  
   jenkins:
     image: jenkins:alpine
+    extends:
+      file: common-service.yml
+      service: logging
     ports:
     - ${JENKINS_REMOTE_API_PORT}:50000
     volumes: 
@@ -10,6 +14,8 @@ services:
     networks: 
       default:
       hub_net:
+        aliases:
+        - builder
     restart: "unless-stopped"
 
 networks: 

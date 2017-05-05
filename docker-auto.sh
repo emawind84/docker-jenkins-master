@@ -2,6 +2,13 @@
 
 set -e
 
+DOCKER_COMPOSE_VERSION="1.11.2"
+CONF_ARG="-f docker-compose.yml"
+SCRIPT_BASE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PATH=$PATH:/usr/local/bin
+
+cd "$SCRIPT_BASE_PATH"
+
 PROJECT_NAME="$PROJECT_NAME"
 if [ -z "$PROJECT_NAME" ]; then
     PROJECT_NAME="$(cat .env | awk 'BEGIN { FS="="; } /^PROJECT_NAME/ {sub(/\r/,"",$2); print $2;}')"
@@ -11,10 +18,11 @@ if [ -z "$REGISTRY_URL" ]; then
     REGISTRY_URL="$(cat .env | awk 'BEGIN { FS="="; } /^REGISTRY_URL/ {sub(/\r/,"",$2); print $2;}')"
 fi
 
-CONF_ARG="-f docker-compose.yml"
-
-SCRIPT_BASE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd "$SCRIPT_BASE_PATH"
+if ! command -v docker-compose >/dev/null 2>&1; then
+    sudo curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
+    -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+fi
 
 usage() {
 echo "Usage:  $(basename "$0") [MODE] [OPTIONS] [COMMAND]"
@@ -22,10 +30,11 @@ echo
 echo "Mode:"
 echo "  --prod          Production mode"
 echo "  --dev           Development mode"
-echo "  --backup        Backup Jenkins Workspace"
+echo "  --with-hub      Add connection tls/ssl, hub required"
 echo
 echo "Options:"
 echo "  --help          Show this help message"
+echo "  --backup        Backup Jenkins Workspace"
 echo
 echo "Commands:"
 echo "  up              Start the services"
@@ -52,8 +61,12 @@ case $i in
         CONF_ARG="-f docker-compose-dev.yml"
         shift
         ;;
+    --with-hub)
+        CONF_ARG="-f docker-compose-with-hub.yml"
+        shift
+        ;;
     --backup)
-        CONF_ARG="-f docker-compose.yml -f docker-compose-backup.yml"
+        CONF_ARG="$CONF_ARG -f docker-compose-backup.yml"
         shift
         ;;
     --help|-h)

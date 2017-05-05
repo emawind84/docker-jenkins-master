@@ -11,3 +11,4 @@ services:
     - ${JENKINS_HTTP_PORT}:8080
     volumes: 
     - ${JENKINS_HOME}:/var/jenkins_home
+    restart: "unless-stopped"
